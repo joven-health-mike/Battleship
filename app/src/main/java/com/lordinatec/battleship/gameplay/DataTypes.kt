@@ -11,6 +11,11 @@ typealias Hit = Boolean
 typealias FieldIndex = Int
 
 /**
+ * Typealias for a range of field indices.
+ */
+typealias FieldIndexRange = IntRange
+
+/**
  * Typealias for the length of a ship.
  */
 typealias ShipLength = Int

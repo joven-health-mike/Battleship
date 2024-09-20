@@ -57,5 +57,5 @@ interface Field {
      *
      * @return The range of field indices.
      */
-    fun fieldIndexRange(): IntRange = 0 until fieldSize()
+    fun fieldIndexRange(): FieldIndexRange = 0 until fieldSize()
 }

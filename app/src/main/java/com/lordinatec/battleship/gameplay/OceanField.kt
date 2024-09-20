@@ -5,7 +5,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class AndroidField(override var configuration: Configuration) : Field {
+/**
+ * Represents a field in the game of Battleship.
+ *
+ * @param configuration The configuration of the field.
+ *
+ * @constructor Creates a new field with the specified configuration.
+ */
+class OceanField(override var configuration: Configuration) : Field {
 
     private val _fieldState = MutableStateFlow(FieldState())
     override val fieldState: StateFlow<FieldState>
