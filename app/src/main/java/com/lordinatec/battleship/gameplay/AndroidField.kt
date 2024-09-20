@@ -17,30 +17,40 @@ class AndroidField(override var configuration: Configuration) : Field {
     }
 
     override fun shoot(index: FieldIndex): Hit {
+        require(fieldState.value.shipLocations.size == Ship.entries.size) { "Ships have not yet been placed." }
         val fieldState = fieldState.value
         fieldState.shipLocations.forEach { (ship, locations) ->
             if (locations.contains(index)) {
                 _fieldState.update {
-                    it.copy(
-                        hits = fieldState.hits + index,
-                    )
-                }
-                if (fieldState.hits.containsAll(locations)) {
-                    _fieldState.update {
-                        it.copy(
-                            sunk = fieldState.sunk + ship
-                        )
+                    val newHits = it.hits + index
+                    var newSunk = it.sunk
+                    if (newHits.containsAll(locations)) {
+                        newSunk += ship
                     }
+                    it.copy(
+                        hits = newHits,
+                        sunk = newSunk
+                    )
                 }
                 return true
             }
         }
+
+        _fieldState.update {
+            it.copy(
+                misses = it.misses + index
+            )
+        }
         return false
     }
 
-    override fun placeShip(ship: Ship, location: List<FieldIndex>) {
-        require(!fieldState.value.shipLocations.containsKey(ship))
-        require(ship.length == location.size)
+    override fun placeShip(ship: Ship, location: Set<FieldIndex>) {
+        require(!fieldState.value.shipLocations.containsKey(ship)) { "Ship has already been placed." }
+        require(ship.length == location.size) { "Ship length does not match location size." }
+        require(location.all { it in fieldIndexRange() }) { "Location is out of bounds." }
+        require(fieldState.value.shipLocations.all {
+            it.value.intersect(location).isEmpty()
+        }) { "Ship locations overlap." }
         _fieldState.update {
             it.copy(
                 shipLocations = fieldState.value.shipLocations + (ship to location)

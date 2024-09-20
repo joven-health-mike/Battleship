@@ -22,5 +22,5 @@ data class FieldState(
     /**
      * The locations of the ships on the field.
      */
-    val shipLocations: Map<Ship, List<FieldIndex>> = emptyMap()
+    val shipLocations: Map<Ship, Set<FieldIndex>> = emptyMap()
 )

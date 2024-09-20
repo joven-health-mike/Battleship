@@ -36,7 +36,7 @@ interface Field {
      * @param ship The ship to place.
      * @param location The location to place the ship at.
      */
-    fun placeShip(ship: Ship, location: List<FieldIndex>)
+    fun placeShip(ship: Ship, location: Set<FieldIndex>)
 
     /**
      * Checks if all ships on the field have been sunk.
