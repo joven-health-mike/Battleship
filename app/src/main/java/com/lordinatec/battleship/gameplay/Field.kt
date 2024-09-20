@@ -17,11 +17,6 @@ interface Field {
     val fieldState: StateFlow<FieldState>
 
     /**
-     * Resets the field with the given configuration.
-     */
-    fun reset(configuration: Configuration)
-
-    /**
      * Shoots at the field at the given index.
      *
      * @param index The index to shoot at.
@@ -58,4 +53,18 @@ interface Field {
      * @return The range of field indices.
      */
     fun fieldIndexRange(): FieldIndexRange = 0 until fieldSize()
+
+    /**
+     * Factory for creating fields.
+     */
+    fun interface Factory {
+        /**
+         * Creates a field with the given configuration.
+         *
+         * @param configuration The configuration of the field.
+         *
+         * @return The created field.
+         */
+        fun create(configuration: Configuration): Field
+    }
 }

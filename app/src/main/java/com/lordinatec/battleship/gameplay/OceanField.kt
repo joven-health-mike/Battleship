@@ -18,11 +18,6 @@ class OceanField(override var configuration: Configuration) : Field {
     override val fieldState: StateFlow<FieldState>
         get() = _fieldState.asStateFlow()
 
-    override fun reset(configuration: Configuration) {
-        if (configuration != this.configuration) this.configuration = configuration
-        _fieldState.update { FieldState() }
-    }
-
     override fun shoot(index: FieldIndex): Hit {
         require(fieldState.value.shipLocations.size == Ship.entries.size) { "Ships have not yet been placed." }
         val fieldState = fieldState.value
@@ -62,6 +57,12 @@ class OceanField(override var configuration: Configuration) : Field {
             it.copy(
                 shipLocations = fieldState.value.shipLocations + (ship to location)
             )
+        }
+    }
+
+    class FactoryImpl : Field.Factory {
+        override fun create(configuration: Configuration): Field {
+            return OceanField(configuration)
         }
     }
 }
