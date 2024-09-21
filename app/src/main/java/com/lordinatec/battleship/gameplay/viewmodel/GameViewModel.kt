@@ -5,6 +5,7 @@
 package com.lordinatec.battleship.gameplay.viewmodel
 
 import androidx.lifecycle.ViewModel
+import com.lordinatec.battleship.gameplay.model.Configuration
 import com.lordinatec.battleship.gameplay.model.FieldIndex
 import com.lordinatec.battleship.gameplay.model.Ship
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,6 +20,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class GameViewModel @Inject constructor(
+    val configuration: Configuration,
     private val gameControllerFactory: GameController.Factory
 ) : ViewModel() {
 

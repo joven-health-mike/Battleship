@@ -1,10 +1,10 @@
 package com.lordinatec.battleship.di
 
+import com.lordinatec.battleship.gameplay.events.EventProvider
+import com.lordinatec.battleship.gameplay.events.GameEventPublisher
 import com.lordinatec.battleship.gameplay.model.Configuration
 import com.lordinatec.battleship.gameplay.model.Field
 import com.lordinatec.battleship.gameplay.model.OceanField
-import com.lordinatec.battleship.gameplay.events.EventProvider
-import com.lordinatec.battleship.gameplay.events.GameEventPublisher
 import com.lordinatec.battleship.gameplay.viewmodel.GameController
 import com.lordinatec.battleship.gameplay.viewmodel.GameViewModel
 import com.lordinatec.battleship.logger.LogcatLogger
@@ -29,13 +29,14 @@ class GameModule {
     @Provides
     @Singleton
     fun provideViewModel(
-        gameControllerFactory: GameController.Factory
+        configuration: Configuration,
+        gameControllerFactory: GameController.Factory,
     ): GameViewModel =
-        GameViewModel(gameControllerFactory)
+        GameViewModel(configuration, gameControllerFactory)
 
     @Provides
     @Singleton
-    fun provideConfiguration(): Configuration = Configuration(rows = 10, columns = 10)
+    fun provideConfiguration(): Configuration = Configuration(rows = 7, columns = 7)
 
     @Provides
     @Singleton
