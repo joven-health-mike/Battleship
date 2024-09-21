@@ -1,8 +1,8 @@
 package com.lordinatec.battleship.di
 
-import com.lordinatec.battleship.gameplay.Configuration
-import com.lordinatec.battleship.gameplay.Field
-import com.lordinatec.battleship.gameplay.OceanField
+import com.lordinatec.battleship.gameplay.model.Configuration
+import com.lordinatec.battleship.gameplay.model.Field
+import com.lordinatec.battleship.gameplay.model.OceanField
 import com.lordinatec.battleship.gameplay.events.EventProvider
 import com.lordinatec.battleship.gameplay.events.GameEventPublisher
 import com.lordinatec.battleship.gameplay.viewmodel.GameController

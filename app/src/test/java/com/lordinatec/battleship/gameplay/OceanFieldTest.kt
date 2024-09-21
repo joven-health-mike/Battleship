@@ -1,5 +1,8 @@
 package com.lordinatec.battleship.gameplay
 
+import com.lordinatec.battleship.gameplay.model.Configuration
+import com.lordinatec.battleship.gameplay.model.OceanField
+import com.lordinatec.battleship.gameplay.model.Ship
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertThrows
 import kotlin.test.BeforeTest

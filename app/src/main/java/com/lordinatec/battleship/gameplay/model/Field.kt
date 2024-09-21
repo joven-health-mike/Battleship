@@ -1,4 +1,4 @@
-package com.lordinatec.battleship.gameplay
+package com.lordinatec.battleship.gameplay.model
 
 import kotlinx.coroutines.flow.StateFlow
 

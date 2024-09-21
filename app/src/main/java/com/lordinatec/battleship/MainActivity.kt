@@ -15,8 +15,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
-import com.lordinatec.battleship.gameplay.Configuration
-import com.lordinatec.battleship.gameplay.Ship
+import com.lordinatec.battleship.gameplay.model.Configuration
+import com.lordinatec.battleship.gameplay.model.Ship
 import com.lordinatec.battleship.gameplay.viewmodel.GameViewModel
 import com.lordinatec.battleship.logger.LogcatLogger
 import com.lordinatec.battleship.ui.theme.BattleshipTheme

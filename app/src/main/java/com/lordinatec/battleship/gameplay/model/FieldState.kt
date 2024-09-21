@@ -1,4 +1,4 @@
-package com.lordinatec.battleship.gameplay
+package com.lordinatec.battleship.gameplay.model
 
 /**
  * Data class representing the state of a field in the game.

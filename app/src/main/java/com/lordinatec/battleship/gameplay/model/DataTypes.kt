@@ -1,4 +1,4 @@
-package com.lordinatec.battleship.gameplay
+package com.lordinatec.battleship.gameplay.model
 
 /**
  * Typealias for a hit on a field.

@@ -1,12 +1,12 @@
 package com.lordinatec.battleship.gameplay.viewmodel
 
-import com.lordinatec.battleship.gameplay.Configuration
-import com.lordinatec.battleship.gameplay.Field
-import com.lordinatec.battleship.gameplay.FieldIndex
-import com.lordinatec.battleship.gameplay.Ship
-import com.lordinatec.battleship.gameplay.TurnState
 import com.lordinatec.battleship.gameplay.events.GameEvent
 import com.lordinatec.battleship.gameplay.events.GameEventPublisher
+import com.lordinatec.battleship.gameplay.model.Configuration
+import com.lordinatec.battleship.gameplay.model.Field
+import com.lordinatec.battleship.gameplay.model.FieldIndex
+import com.lordinatec.battleship.gameplay.model.Ship
+import com.lordinatec.battleship.gameplay.model.TurnState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -15,7 +15,7 @@ import javax.inject.Inject
 class GameController(
     val myField: Field,
     val enemyField: Field,
-    val gameEventPublisher: GameEventPublisher
+    private val gameEventPublisher: GameEventPublisher
 ) {
     private val _turnState = MutableStateFlow(TurnState())
     val turnState = _turnState.asStateFlow()

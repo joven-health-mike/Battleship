@@ -1,4 +1,4 @@
-package com.lordinatec.battleship.gameplay
+package com.lordinatec.battleship.gameplay.model
 
 /**
  * Enum class representing the different types of ships in the game.

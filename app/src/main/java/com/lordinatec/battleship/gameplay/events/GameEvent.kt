@@ -4,7 +4,7 @@
 
 package com.lordinatec.battleship.gameplay.events
 
-import com.lordinatec.battleship.gameplay.FieldIndex
+import com.lordinatec.battleship.gameplay.model.FieldIndex
 
 /**
  * Interface for game events.
