@@ -5,6 +5,7 @@ import com.lordinatec.battleship.gameplay.events.GameEventPublisher
 import com.lordinatec.battleship.gameplay.model.Configuration
 import com.lordinatec.battleship.gameplay.model.Field
 import com.lordinatec.battleship.gameplay.model.OceanField
+import com.lordinatec.battleship.gameplay.model.RandomShipPlacer
 import com.lordinatec.battleship.gameplay.viewmodel.GameController
 import com.lordinatec.battleship.gameplay.viewmodel.GameViewModel
 import com.lordinatec.battleship.logger.LogcatLogger
@@ -64,12 +65,22 @@ class GameModule {
 
     @Provides
     @Singleton
+    fun provideRandomShipPlacerFactory(): RandomShipPlacer.Factory = RandomShipPlacer.Factory()
+
+    @Provides
+    @Singleton
     fun provideGameControllerFactory(
         configuration: Configuration,
         fieldFactory: Field.Factory,
+        shipPlacerFactory: RandomShipPlacer.Factory,
         gameEventPublisher: GameEventPublisher,
     ): GameController.FactoryImpl =
-        GameController.FactoryImpl(configuration, fieldFactory, gameEventPublisher)
+        GameController.FactoryImpl(
+            configuration,
+            fieldFactory,
+            shipPlacerFactory,
+            gameEventPublisher
+        )
 }
 
 @Module

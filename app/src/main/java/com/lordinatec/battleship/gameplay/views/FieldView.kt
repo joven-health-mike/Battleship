@@ -12,6 +12,7 @@ import com.lordinatec.battleship.gameplay.model.FieldState
 fun FieldView(
     configuration: Configuration,
     fieldState: FieldState,
+    shouldShowShips: Boolean,
     onFieldClicked: (FieldIndex) -> Unit
 ) {
     Row {
@@ -20,10 +21,12 @@ fun FieldView(
                 (0 until configuration.columns).forEach { columnIndex ->
                     val index = columnIndex * configuration.columns + rowIndex
                     var fieldCellState: FieldCellState = FieldCellState.EMPTY
-                    for (shipLocation in fieldState.shipLocations.values) {
-                        if (shipLocation.contains(index)) {
-                            fieldCellState = FieldCellState.SHIP
-                            break
+                    if (shouldShowShips) {
+                        for (shipLocation in fieldState.shipLocations.values) {
+                            if (shipLocation.contains(index)) {
+                                fieldCellState = FieldCellState.SHIP
+                                break
+                            }
                         }
                     }
                     when {
@@ -52,6 +55,7 @@ fun FieldViewPreview() {
     FieldView(
         configuration = Configuration(8, 8),
         fieldState = FieldState(),
+        shouldShowShips = true,
         onFieldClicked = {}
     )
 }

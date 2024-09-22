@@ -27,8 +27,10 @@ class LogcatLogger @Inject constructor(
                 is GameEvent.GameWon -> level("Game won")
                 is GameEvent.MyShotHit -> level("My shot hit: ${event.index}")
                 is GameEvent.MyShotMissed -> level("My shot missed: ${event.index}")
+                is GameEvent.ShipSunk -> level("Enemy sunk my ship: ${event.ship}")
                 is GameEvent.EnemyShotHit -> level("Enemy shot hit: ${event.index}")
                 is GameEvent.EnemyShotMissed -> level("Enemy shot missed: ${event.index}")
+                is GameEvent.EnemyShipSunk -> level("I sunk enemy ship: ${event.ship}")
             }
         }
     }

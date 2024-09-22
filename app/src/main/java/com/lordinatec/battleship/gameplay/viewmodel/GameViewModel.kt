@@ -45,6 +45,14 @@ class GameViewModel @Inject constructor(
         return gameController.isGameActive()
     }
 
+    fun placeShipsAtRandom() {
+        gameController.placeShipsAtRandom()
+    }
+
+    fun placeEnemyShipsAtRandom() {
+        gameController.placeEnemyShipsAtRandom()
+    }
+
     fun placeShip(ship: Ship, locations: Set<FieldIndex>) {
         gameController.placeShip(ship, locations)
     }
@@ -52,6 +60,9 @@ class GameViewModel @Inject constructor(
     fun placeEnemyShip(ship: Ship, locations: Set<FieldIndex>) {
         gameController.placeEnemyShip(ship, locations)
     }
+
+    fun fieldIndexRange() = gameController.fieldIndexRange()
+    fun enemyFieldIndexRange() = gameController.enemyFieldIndexRange()
 
     /**
      * Make a shot at the given index.

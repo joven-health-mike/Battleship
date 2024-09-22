@@ -14,6 +14,7 @@ import com.lordinatec.battleship.gameplay.events.GameEventPublisher
 import com.lordinatec.battleship.gameplay.model.Configuration
 import com.lordinatec.battleship.gameplay.model.FieldIndex
 import com.lordinatec.battleship.gameplay.model.OceanField
+import com.lordinatec.battleship.gameplay.model.RandomShipPlacer
 import com.lordinatec.battleship.gameplay.viewmodel.GameController
 import com.lordinatec.battleship.gameplay.viewmodel.GameViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -26,6 +27,7 @@ fun GameView(viewModel: GameViewModel, clickListener: (index: FieldIndex) -> Uni
         FieldView(
             configuration = viewModel.configuration,
             fieldState = viewModel.enemyFieldState().collectAsState().value,
+            shouldShowShips = false,
             onFieldClicked = clickListener
         )
         Spacer(modifier = Modifier.height(40.dp))
@@ -33,6 +35,7 @@ fun GameView(viewModel: GameViewModel, clickListener: (index: FieldIndex) -> Uni
         FieldView(
             configuration = viewModel.configuration,
             fieldState = viewModel.friendlyFieldState().collectAsState().value,
+            shouldShowShips = true,
             onFieldClicked = clickListener
         )
 
@@ -49,7 +52,7 @@ fun GameViewPreview() {
     GameView(
         viewModel = GameViewModel(
             configuration
-        ) { GameController(myField, enemyField, gameEventPublisher) },
+        ) { GameController(myField, enemyField, RandomShipPlacer.Factory(), gameEventPublisher) },
         clickListener = {}
     )
 }

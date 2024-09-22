@@ -18,15 +18,17 @@ class OceanField(override var configuration: Configuration) : Field {
     override val fieldState: StateFlow<FieldState>
         get() = _fieldState.asStateFlow()
 
-    override fun shoot(index: FieldIndex): Hit {
+    override fun shoot(index: FieldIndex): Field.ShotResult {
         require(fieldState.value.shipLocations.size == Ship.entries.size) { "Ships have not yet been placed." }
         val fieldState = fieldState.value
+        var shipWasSunk = false
         fieldState.shipLocations.forEach { (ship, locations) ->
             if (locations.contains(index)) {
                 _fieldState.update {
                     val newHits = it.hits + index
                     var newSunk = it.sunk
                     if (newHits.containsAll(locations)) {
+                        shipWasSunk = true
                         newSunk += ship
                     }
                     it.copy(
@@ -34,7 +36,8 @@ class OceanField(override var configuration: Configuration) : Field {
                         sunk = newSunk
                     )
                 }
-                return true
+                val shipSunk = if (shipWasSunk) shipAtIndex(index) else null
+                return Field.ShotResult(true, shipSunk)
             }
         }
 
@@ -43,7 +46,16 @@ class OceanField(override var configuration: Configuration) : Field {
                 misses = it.misses + index
             )
         }
-        return false
+        return Field.ShotResult(false, null)
+    }
+
+    private fun shipAtIndex(index: FieldIndex): Ship? {
+        for (ship in Ship.entries) {
+            if (fieldState.value.shipLocations[ship]?.contains(index) == true) {
+                return ship
+            }
+        }
+        return null
     }
 
     override fun placeShip(ship: Ship, location: Set<FieldIndex>) {

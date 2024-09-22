@@ -5,6 +5,7 @@
 package com.lordinatec.battleship.gameplay.events
 
 import com.lordinatec.battleship.gameplay.model.FieldIndex
+import com.lordinatec.battleship.gameplay.model.Ship
 
 /**
  * Interface for game events.
@@ -52,4 +53,18 @@ interface GameEvent : Event {
      * @param index The index of the position.
      */
     data class EnemyShotMissed(val index: Int) : GameEvent
+
+    /**
+     * Event for when a ship is sunk.
+     *
+     * @param ship The ship that was sunk.
+     */
+    data class ShipSunk(val ship: Ship): GameEvent
+
+    /**
+     * Event for when an enemy ship is sunk.
+     *
+     * @param ship The ship that was sunk.
+     */
+    data class EnemyShipSunk(val ship: Ship): GameEvent
 }

@@ -23,7 +23,7 @@ interface Field {
      *
      * @return The result of the shot.
      */
-    fun shoot(index: FieldIndex): Hit
+    fun shoot(index: FieldIndex): ShotResult
 
     /**
      * Places a ship on the field.
@@ -55,6 +55,22 @@ interface Field {
     fun fieldIndexRange(): FieldIndexRange = 0 until fieldSize()
 
     /**
+     * Checks if the field at the given index is occupied.
+     *
+     * @param index The index to check.
+     *
+     * @return `true` if the field is occupied, `false` otherwise.
+     */
+    fun isOccupied(index: FieldIndex): Boolean {
+        fieldState.value.shipLocations.values.forEach {
+            if (it.contains(index)) {
+                return true
+            }
+        }
+        return false
+    }
+
+    /**
      * Factory for creating fields.
      */
     fun interface Factory {
@@ -67,4 +83,9 @@ interface Field {
          */
         fun create(configuration: Configuration): Field
     }
+
+    class ShotResult(
+        val hit: Boolean,
+        val sunk: Ship?
+    )
 }

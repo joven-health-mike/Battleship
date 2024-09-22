@@ -19,7 +19,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
 import com.lordinatec.battleship.gameplay.model.Configuration
-import com.lordinatec.battleship.gameplay.model.Ship
 import com.lordinatec.battleship.gameplay.viewmodel.GameViewModel
 import com.lordinatec.battleship.gameplay.views.GameView
 import com.lordinatec.battleship.logger.LogcatLogger
@@ -102,106 +101,28 @@ class MainActivity : ComponentActivity() {
     }
 
     private suspend fun runSimulation(viewModel: GameViewModel) {
-        viewModel.placeShip(Ship.CARRIER, (0..4).toSet())
-        viewModel.placeShip(
-            Ship.BATTLESHIP,
-            (configuration.columns..configuration.columns + 3).toSet()
-        )
-        viewModel.placeShip(
-            Ship.CRUISER,
-            (configuration.columns * 2..configuration.columns * 2 + 2).toSet()
-        )
-        viewModel.placeShip(
-            Ship.SUBMARINE,
-            (configuration.columns * 3..configuration.columns * 3 + 2).toSet()
-        )
-        viewModel.placeShip(
-            Ship.DESTROYER,
-            (configuration.columns * 4..configuration.columns * 4 + 1).toSet()
-        )
-        viewModel.placeEnemyShip(Ship.CARRIER, (0..4).toSet())
-        viewModel.placeEnemyShip(
-            Ship.BATTLESHIP,
-            (configuration.columns..configuration.columns + 3).toSet()
-        )
-        viewModel.placeEnemyShip(
-            Ship.CRUISER,
-            (configuration.columns * 2..configuration.columns * 2 + 2).toSet()
-        )
-        viewModel.placeEnemyShip(
-            Ship.SUBMARINE,
-            (configuration.columns * 3..configuration.columns * 3 + 2).toSet()
-        )
-        viewModel.placeEnemyShip(
-            Ship.DESTROYER,
-            (configuration.columns * 4..configuration.columns * 4 + 1).toSet()
-        )
+        viewModel.placeShipsAtRandom()
+        viewModel.placeEnemyShipsAtRandom()
         viewModel.startGame()
-        viewModel.makeShot(0)
-        delay(1000)
-        viewModel.makeEnemyShot(6)
-        delay(1000)
-        viewModel.makeShot(1)
-        delay(1000)
-        viewModel.makeEnemyShot(7)
-        delay(1000)
-        viewModel.makeShot(2)
-        delay(1000)
-        viewModel.makeEnemyShot(8)
-        delay(1000)
-        viewModel.makeShot(3)
-        delay(1000)
-        viewModel.makeEnemyShot(9)
-        delay(1000)
-        viewModel.makeShot(4)
-        delay(1000)
-        viewModel.makeEnemyShot(10)
-        delay(1000)
-        viewModel.makeShot(7)
-        delay(1000)
-        viewModel.makeEnemyShot(11)
-        delay(1000)
-        viewModel.makeShot(8)
-        delay(1000)
-        viewModel.makeEnemyShot(12)
-        delay(1000)
-        viewModel.makeShot(9)
-        delay(1000)
-        viewModel.makeEnemyShot(13)
-        delay(1000)
-        viewModel.makeShot(10)
-        delay(1000)
-        viewModel.makeEnemyShot(14)
-        delay(1000)
-        viewModel.makeShot(14)
-        delay(1000)
-        viewModel.makeEnemyShot(15)
-        delay(1000)
-        viewModel.makeShot(15)
-        delay(1000)
-        viewModel.makeEnemyShot(16)
-        delay(1000)
-        viewModel.makeShot(16)
-        delay(1000)
-        viewModel.makeEnemyShot(17)
-        delay(1000)
-        viewModel.makeShot(21)
-        delay(1000)
-        viewModel.makeEnemyShot(18)
-        delay(1000)
-        viewModel.makeShot(22)
-        delay(1000)
-        viewModel.makeEnemyShot(19)
-        delay(1000)
-        viewModel.makeShot(23)
-        delay(1000)
-        viewModel.makeEnemyShot(20)
-        delay(1000)
-        viewModel.makeShot(28)
-        delay(1000)
-        viewModel.makeEnemyShot(29)
-        delay(1000)
-        viewModel.makeShot(29)
-        delay(1000)
+        val shotsTaken = mutableListOf<Int>()
+        val enemyShotsTaken = mutableListOf<Int>()
+        while (viewModel.isGameActive()) {
+            delay(500)
+            var randomIndex: Int
+            do {
+                randomIndex = viewModel.fieldIndexRange().random()
+            } while (randomIndex in shotsTaken)
+            viewModel.makeShot(randomIndex)
+            shotsTaken.add(randomIndex)
+
+            if (viewModel.isGameActive()) {
+                delay(500)
+                do {
+                    randomIndex = viewModel.enemyFieldIndexRange().random()
+                } while (randomIndex in enemyShotsTaken)
+                viewModel.makeEnemyShot(randomIndex)
+                enemyShotsTaken.add(randomIndex)
+            }
+        }
     }
 }

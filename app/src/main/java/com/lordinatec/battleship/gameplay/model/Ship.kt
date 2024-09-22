@@ -33,3 +33,11 @@ enum class Ship(val length: ShipLength) {
      */
     DESTROYER(2)
 }
+
+/**
+ * Enum class representing the different directions a ship can be placed on the field.
+ */
+enum class ShipDirection {
+    HORIZONTAL,
+    VERTICAL
+}

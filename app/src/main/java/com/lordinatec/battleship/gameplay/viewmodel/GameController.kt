@@ -5,6 +5,7 @@ import com.lordinatec.battleship.gameplay.events.GameEventPublisher
 import com.lordinatec.battleship.gameplay.model.Configuration
 import com.lordinatec.battleship.gameplay.model.Field
 import com.lordinatec.battleship.gameplay.model.FieldIndex
+import com.lordinatec.battleship.gameplay.model.RandomShipPlacer
 import com.lordinatec.battleship.gameplay.model.Ship
 import com.lordinatec.battleship.gameplay.model.TurnState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,15 +16,24 @@ import javax.inject.Inject
 class GameController(
     val myField: Field,
     val enemyField: Field,
-    private val gameEventPublisher: GameEventPublisher
+    private val shipPlacerFactory: RandomShipPlacer.Factory,
+    private val gameEventPublisher: GameEventPublisher,
 ) {
     private val _turnState = MutableStateFlow(TurnState())
     val turnState = _turnState.asStateFlow()
 
-    private val defaultConfiguration = Configuration(10, 10)
-
     private var gameStarted = false
     private var gameEnded = false
+
+    fun placeShipsAtRandom() {
+        require(!gameStarted) { "Game has already started." }
+        shipPlacerFactory.create(myField).placeAllShips()
+    }
+
+    fun placeEnemyShipsAtRandom() {
+        require(!gameStarted) { "Game has already started." }
+        shipPlacerFactory.create(enemyField).placeAllShips()
+    }
 
     fun placeShip(ship: Ship, locations: Set<FieldIndex>) {
         require(!gameStarted) { "Game has already started." }
@@ -34,6 +44,10 @@ class GameController(
         require(!gameStarted) { "Game has already started." }
         enemyField.placeShip(ship, locations)
     }
+
+    fun fieldIndexRange() = myField.fieldIndexRange()
+
+    fun enemyFieldIndexRange() = enemyField.fieldIndexRange()
 
     fun startGame() {
         require(!gameStarted) { "Game has already started." }
@@ -47,11 +61,14 @@ class GameController(
     fun shootAtEnemy(location: FieldIndex) {
         require(isGameActive()) { "Game is not active." }
         require(turnState.value.isMyTurn) { "It is not your turn." }
-        val hit = enemyField.shoot(location)
-        if (hit) {
+        val shotResult = enemyField.shoot(location)
+        if (shotResult.hit) {
             gameEventPublisher.publish(GameEvent.MyShotHit(location))
         } else {
             gameEventPublisher.publish(GameEvent.MyShotMissed(location))
+        }
+        if (shotResult.sunk != null) {
+            gameEventPublisher.publish(GameEvent.EnemyShipSunk(shotResult.sunk))
         }
         maybeEndGame()
         _turnState.update { it.copy(isMyTurn = false) }
@@ -60,11 +77,14 @@ class GameController(
     fun enemyShot(location: FieldIndex) {
         require(isGameActive()) { "Game is not active." }
         require(!turnState.value.isMyTurn) { "It is not your enemy's turn." }
-        val hit = myField.shoot(location)
-        if (hit) {
+        val shotResult = myField.shoot(location)
+        if (shotResult.hit) {
             gameEventPublisher.publish(GameEvent.EnemyShotHit(location))
         } else {
             gameEventPublisher.publish(GameEvent.EnemyShotMissed(location))
+        }
+        if (shotResult.sunk != null) {
+            gameEventPublisher.publish(GameEvent.ShipSunk(shotResult.sunk))
         }
         maybeEndGame()
         _turnState.update { it.copy(isMyTurn = true) }
@@ -103,12 +123,13 @@ class GameController(
     class FactoryImpl @Inject constructor(
         private val configuration: Configuration,
         private val fieldFactory: Field.Factory,
+        private val shipPlacerFactory: RandomShipPlacer.Factory,
         private val gameEventPublisher: GameEventPublisher
     ) : Factory {
         override fun create(): GameController {
             val myField = fieldFactory.create(configuration)
             val enemyField = fieldFactory.create(configuration)
-            return GameController(myField, enemyField, gameEventPublisher)
+            return GameController(myField, enemyField, shipPlacerFactory, gameEventPublisher)
         }
     }
 }
