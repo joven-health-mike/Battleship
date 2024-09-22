@@ -20,6 +20,12 @@ fun FieldView(
                 (0 until configuration.columns).forEach { columnIndex ->
                     val index = columnIndex * configuration.columns + rowIndex
                     var fieldCellState: FieldCellState = FieldCellState.EMPTY
+                    for (shipLocation in fieldState.shipLocations.values) {
+                        if (shipLocation.contains(index)) {
+                            fieldCellState = FieldCellState.SHIP
+                            break
+                        }
+                    }
                     when {
                         fieldState.hits.contains(index) -> {
                             fieldCellState = FieldCellState.HIT
@@ -27,10 +33,6 @@ fun FieldView(
 
                         fieldState.misses.contains(index) -> {
                             fieldCellState = FieldCellState.MISS
-                        }
-
-                        fieldState.shipLocations.values.contains<Any>(index) -> {
-                            fieldCellState = FieldCellState.SHIP
                         }
                     }
                     FieldCellView(

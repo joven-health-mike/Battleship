@@ -74,9 +74,15 @@ class GameController(
 
     private fun maybeEndGame() {
         if (myField.areAllShipsSunk()) {
+            _turnState.update {
+                it.copy(isGameOver = true)
+            }
             gameEnded = true
             gameEventPublisher.publish(GameEvent.GameLost)
         } else if (enemyField.areAllShipsSunk()) {
+            _turnState.update {
+                it.copy(isGameOver = true)
+            }
             gameEnded = true
             gameEventPublisher.publish(GameEvent.GameWon)
         }

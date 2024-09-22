@@ -64,14 +64,15 @@ class MainActivity : ComponentActivity() {
                             }
                         })
                     }
-                    if (viewModel.turnState().collectAsState().value.isMyTurn) {
+                    val turnState = viewModel.turnState().collectAsState().value
+                    if (!turnState.isGameOver && turnState.isMyTurn) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
                             Text("My Turn!")
                         }
-                    } else {
+                    } else if (!turnState.isGameOver) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
