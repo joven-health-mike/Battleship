@@ -24,8 +24,8 @@ class GameController(
 
     private var gameStarted = false
     private var gameEnded = false
-    private var shots = HashSet<FieldIndex>()
-    private var enemyShots = HashSet<FieldIndex>()
+    var shots = HashSet<FieldIndex>()
+    var enemyShots = HashSet<FieldIndex>()
 
     fun placeShipsAtRandom() {
         if (gameStarted) throw GameAlreadyStartedException()

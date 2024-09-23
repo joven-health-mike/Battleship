@@ -28,6 +28,7 @@ class GameViewModel @Inject constructor(
     fun friendlyFieldState() = gameController.myField.fieldState
     fun enemyFieldState() = gameController.enemyField.fieldState
     fun turnState() = gameController.turnState
+    fun enemyShots() = gameController.enemyShots
 
     /* PUBLIC APIS */
     /**

@@ -22,6 +22,7 @@ import androidx.lifecycle.lifecycleScope
 import com.lordinatec.battleship.gameplay.events.EventProvider
 import com.lordinatec.battleship.gameplay.events.GameEvent
 import com.lordinatec.battleship.gameplay.model.Configuration
+import com.lordinatec.battleship.gameplay.model.GameAi
 import com.lordinatec.battleship.gameplay.viewmodel.AlreadyShotException
 import com.lordinatec.battleship.gameplay.viewmodel.GameViewModel
 import com.lordinatec.battleship.gameplay.viewmodel.WrongTurnException
@@ -44,6 +45,9 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var gameEventProvider: EventProvider
+
+    @Inject
+    lateinit var gameAiFactory: GameAi.Factory
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,6 +87,16 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                             }
+                        }
+                        lifecycleScope.launch {
+                            val gameAi = gameAiFactory.create(viewModel)
+                            viewModel.turnState().collect {
+                                if (!it.isGameOver && !it.isMyTurn) {
+                                    delay(500)
+                                    gameAi.makeNextMove()
+                                }
+                            }
+
                         }
                         viewModel.placeShipsAtRandom()
                         viewModel.placeEnemyShipsAtRandom()

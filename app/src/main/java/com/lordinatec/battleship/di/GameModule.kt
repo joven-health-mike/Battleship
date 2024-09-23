@@ -4,7 +4,9 @@ import com.lordinatec.battleship.gameplay.events.EventProvider
 import com.lordinatec.battleship.gameplay.events.GameEventPublisher
 import com.lordinatec.battleship.gameplay.model.Configuration
 import com.lordinatec.battleship.gameplay.model.Field
+import com.lordinatec.battleship.gameplay.model.GameAi
 import com.lordinatec.battleship.gameplay.model.OceanField
+import com.lordinatec.battleship.gameplay.model.RandomGameAi
 import com.lordinatec.battleship.gameplay.model.RandomShipPlacer
 import com.lordinatec.battleship.gameplay.viewmodel.GameController
 import com.lordinatec.battleship.gameplay.viewmodel.GameViewModel
@@ -69,6 +71,10 @@ class GameModule {
 
     @Provides
     @Singleton
+    fun provideRandomGameAiFactory(): RandomGameAi.Factory = RandomGameAi.Factory()
+
+    @Provides
+    @Singleton
     fun provideGameControllerFactory(
         configuration: Configuration,
         fieldFactory: Field.Factory,
@@ -95,4 +101,7 @@ interface InterfaceGameModule {
 
     @Binds
     fun bindGameEventPublisher(gameEventPublisher: GameEventPublisher): EventProvider
+
+    @Binds
+    fun bindGameAiFactory(randomGameAiFactory: RandomGameAi.Factory): GameAi.Factory
 }
