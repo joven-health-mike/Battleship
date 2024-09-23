@@ -37,7 +37,7 @@ class GameModule {
 
     @Provides
     @Singleton
-    fun provideConfiguration(): Configuration = Configuration(rows = 7, columns = 7)
+    fun provideConfiguration(): Configuration = Configuration(rows = 10, columns = 10)
 
     @Provides
     @Singleton

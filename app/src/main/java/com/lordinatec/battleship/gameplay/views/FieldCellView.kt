@@ -22,9 +22,9 @@ fun FieldCellView(
 ) {
     Box(
         modifier = Modifier
-            .width(50.dp)
-            .height(50.dp)
-            .border(3.dp, Color.Black)
+            .width(35.dp)
+            .height(35.dp)
+            .border(2.dp, Color.Black)
             .clickable(onClick = { onFieldClicked(index) })
             .background(
                 brush = Brush.radialGradient(
