@@ -24,24 +24,26 @@ class GameController(
 
     private var gameStarted = false
     private var gameEnded = false
+    private var shots = HashSet<FieldIndex>()
+    private var enemyShots = HashSet<FieldIndex>()
 
     fun placeShipsAtRandom() {
-        require(!gameStarted) { "Game has already started." }
+        if (gameStarted) throw GameAlreadyStartedException()
         shipPlacerFactory.create(myField).placeAllShips()
     }
 
     fun placeEnemyShipsAtRandom() {
-        require(!gameStarted) { "Game has already started." }
+        if (gameStarted) throw GameAlreadyStartedException()
         shipPlacerFactory.create(enemyField).placeAllShips()
     }
 
     fun placeShip(ship: Ship, locations: Set<FieldIndex>) {
-        require(!gameStarted) { "Game has already started." }
+        if (gameStarted) throw GameAlreadyStartedException()
         myField.placeShip(ship, locations)
     }
 
     fun placeEnemyShip(ship: Ship, locations: Set<FieldIndex>) {
-        require(!gameStarted) { "Game has already started." }
+        if (gameStarted) throw GameAlreadyStartedException()
         enemyField.placeShip(ship, locations)
     }
 
@@ -50,17 +52,20 @@ class GameController(
     fun enemyFieldIndexRange() = enemyField.fieldIndexRange()
 
     fun startGame() {
-        require(!gameStarted) { "Game has already started." }
-        require(myField.fieldState.value.shipLocations.size == Ship.entries.size) { "Not all friendly ships have been placed." }
-        require(enemyField.fieldState.value.shipLocations.size == Ship.entries.size) { "Not all enemy ships have been placed." }
+        if (gameStarted) throw GameAlreadyStartedException()
+        if (myField.fieldState.value.shipLocations.size != Ship.entries.size
+            || enemyField.fieldState.value.shipLocations.size != Ship.entries.size
+        ) throw ShipsNotPlacedException()
         gameStarted = true
         gameEnded = false
         gameEventPublisher.publish(GameEvent.GameCreated)
     }
 
     fun shootAtEnemy(location: FieldIndex) {
-        require(isGameActive()) { "Game is not active." }
-        require(turnState.value.isMyTurn) { "It is not your turn." }
+        if (!isGameActive()) throw GameNotActiveException()
+        if (!turnState.value.isMyTurn) throw WrongTurnException()
+        if (shots.contains(location)) throw AlreadyShotException()
+        shots.add(location)
         val shotResult = enemyField.shoot(location)
         if (shotResult.hit) {
             gameEventPublisher.publish(GameEvent.MyShotHit(location))
@@ -75,8 +80,10 @@ class GameController(
     }
 
     fun enemyShot(location: FieldIndex) {
-        require(isGameActive()) { "Game is not active." }
-        require(!turnState.value.isMyTurn) { "It is not your enemy's turn." }
+        if (!isGameActive()) throw GameNotActiveException()
+        if (turnState.value.isMyTurn) throw WrongTurnException()
+        if (enemyShots.contains(location)) throw AlreadyShotException()
+        enemyShots.add(location)
         val shotResult = myField.shoot(location)
         if (shotResult.hit) {
             gameEventPublisher.publish(GameEvent.EnemyShotHit(location))

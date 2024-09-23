@@ -1,6 +1,7 @@
 package com.lordinatec.battleship
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -18,8 +19,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
+import com.lordinatec.battleship.gameplay.events.EventProvider
+import com.lordinatec.battleship.gameplay.events.GameEvent
 import com.lordinatec.battleship.gameplay.model.Configuration
+import com.lordinatec.battleship.gameplay.viewmodel.AlreadyShotException
 import com.lordinatec.battleship.gameplay.viewmodel.GameViewModel
+import com.lordinatec.battleship.gameplay.viewmodel.WrongTurnException
 import com.lordinatec.battleship.gameplay.views.GameView
 import com.lordinatec.battleship.logger.LogcatLogger
 import com.lordinatec.battleship.ui.theme.BattleshipTheme
@@ -36,6 +41,9 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var logcatLogger: LogcatLogger
+
+    @Inject
+    lateinit var gameEventProvider: EventProvider
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,11 +63,79 @@ class MainActivity : ComponentActivity() {
                         lifecycleScope.launch {
                             logcatLogger.consume()
                         }
+                        lifecycleScope.launch {
+                            gameEventProvider.eventFlow.collect { event ->
+                                when (val gameEvent = event as GameEvent) {
+                                    is GameEvent.ShipSunk -> {
+                                        Toast.makeText(
+                                            this@MainActivity,
+                                            "Enemy sunk your ${gameEvent.ship}!",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+
+                                    is GameEvent.EnemyShipSunk -> {
+                                        Toast.makeText(
+                                            this@MainActivity,
+                                            "You sunk the enemy's ${gameEvent.ship}!",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+                            }
+                        }
+                        viewModel.placeShipsAtRandom()
+                        viewModel.placeEnemyShipsAtRandom()
+                        viewModel.startGame()
                     }
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         GameView(viewModel, clickListener = { index ->
-                            lifecycleScope.launch {
-                                runSimulation(viewModel)
+                            try {
+                                viewModel.makeShot(index)
+                            } catch (e: Exception) {
+                                when (e) {
+                                    is WrongTurnException -> {
+                                        Toast.makeText(
+                                            this@MainActivity,
+                                            "It's not your turn!",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+
+                                    is AlreadyShotException -> {
+                                        Toast.makeText(
+                                            this@MainActivity,
+                                            "You already shot here!",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+
+                                    else -> throw e
+                                }
+                            }
+                        }, enemyClickListener = { index ->
+                            try {
+                                viewModel.makeEnemyShot(index)
+                            } catch (e: Exception) {
+                                when (e) {
+                                    is WrongTurnException -> {
+                                        Toast.makeText(
+                                            this@MainActivity,
+                                            "It's your turn!",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+
+                                    is AlreadyShotException -> {
+                                        Toast.makeText(
+                                            this@MainActivity,
+                                            "Enemy already shot here!",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+
+                                    else -> throw e
+                                }
                             }
                         })
                     }
@@ -96,32 +172,6 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
-            }
-        }
-    }
-
-    private suspend fun runSimulation(viewModel: GameViewModel) {
-        viewModel.placeShipsAtRandom()
-        viewModel.placeEnemyShipsAtRandom()
-        viewModel.startGame()
-        val shotsTaken = mutableListOf<Int>()
-        val enemyShotsTaken = mutableListOf<Int>()
-        while (viewModel.isGameActive()) {
-            delay(500)
-            var randomIndex: Int
-            do {
-                randomIndex = viewModel.fieldIndexRange().random()
-            } while (randomIndex in shotsTaken)
-            viewModel.makeShot(randomIndex)
-            shotsTaken.add(randomIndex)
-
-            if (viewModel.isGameActive()) {
-                delay(500)
-                do {
-                    randomIndex = viewModel.enemyFieldIndexRange().random()
-                } while (randomIndex in enemyShotsTaken)
-                viewModel.makeEnemyShot(randomIndex)
-                enemyShotsTaken.add(randomIndex)
             }
         }
     }

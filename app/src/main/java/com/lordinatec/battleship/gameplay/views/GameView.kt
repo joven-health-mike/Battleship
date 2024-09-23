@@ -21,7 +21,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 
 @Composable
-fun GameView(viewModel: GameViewModel, clickListener: (index: FieldIndex) -> Unit) {
+fun GameView(
+    viewModel: GameViewModel,
+    clickListener: (index: FieldIndex) -> Unit,
+    enemyClickListener: (index: FieldIndex) -> Unit
+) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text("Enemy Field")
         FieldView(
@@ -36,7 +40,7 @@ fun GameView(viewModel: GameViewModel, clickListener: (index: FieldIndex) -> Uni
             configuration = viewModel.configuration,
             fieldState = viewModel.friendlyFieldState().collectAsState().value,
             shouldShowShips = true,
-            onFieldClicked = clickListener
+            onFieldClicked = enemyClickListener
         )
 
     }
@@ -53,6 +57,7 @@ fun GameViewPreview() {
         viewModel = GameViewModel(
             configuration
         ) { GameController(myField, enemyField, RandomShipPlacer.Factory(), gameEventPublisher) },
-        clickListener = {}
+        clickListener = {},
+        enemyClickListener = {}
     )
 }
