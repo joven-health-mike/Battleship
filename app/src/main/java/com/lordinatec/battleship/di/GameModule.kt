@@ -1,12 +1,12 @@
 package com.lordinatec.battleship.di
 
+import com.lordinatec.battleship.gameplay.ai.AdvancedGameAi
+import com.lordinatec.battleship.gameplay.ai.GameAi
 import com.lordinatec.battleship.gameplay.events.EventProvider
 import com.lordinatec.battleship.gameplay.events.GameEventPublisher
 import com.lordinatec.battleship.gameplay.model.Configuration
 import com.lordinatec.battleship.gameplay.model.Field
-import com.lordinatec.battleship.gameplay.model.GameAi
 import com.lordinatec.battleship.gameplay.model.OceanField
-import com.lordinatec.battleship.gameplay.model.RandomGameAi
 import com.lordinatec.battleship.gameplay.model.RandomShipPlacer
 import com.lordinatec.battleship.gameplay.viewmodel.GameController
 import com.lordinatec.battleship.gameplay.viewmodel.GameViewModel
@@ -71,7 +71,7 @@ class GameModule {
 
     @Provides
     @Singleton
-    fun provideRandomGameAiFactory(): RandomGameAi.Factory = RandomGameAi.Factory()
+    fun provideAdvancedGameAiFactory(): AdvancedGameAi.Factory = AdvancedGameAi.Factory()
 
     @Provides
     @Singleton
@@ -103,5 +103,5 @@ interface InterfaceGameModule {
     fun bindGameEventPublisher(gameEventPublisher: GameEventPublisher): EventProvider
 
     @Binds
-    fun bindGameAiFactory(randomGameAiFactory: RandomGameAi.Factory): GameAi.Factory
+    fun bindGameAiFactory(advancedGameFactory: AdvancedGameAi.Factory): GameAi.Factory
 }

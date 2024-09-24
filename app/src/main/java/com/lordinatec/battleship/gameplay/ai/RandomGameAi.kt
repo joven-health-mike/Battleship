@@ -1,5 +1,7 @@
-package com.lordinatec.battleship.gameplay.model
+package com.lordinatec.battleship.gameplay.ai
 
+import com.lordinatec.battleship.gameplay.events.EventProvider
+import com.lordinatec.battleship.gameplay.model.FieldIndex
 import com.lordinatec.battleship.gameplay.viewmodel.GameViewModel
 
 class RandomGameAi(
@@ -23,7 +25,7 @@ class RandomGameAi(
     }
 
     class Factory : GameAi.Factory {
-        override fun create(viewModel: GameViewModel): GameAi {
+        override fun create(viewModel: GameViewModel, eventProvider: EventProvider?): GameAi {
             return RandomGameAi(viewModel)
         }
     }

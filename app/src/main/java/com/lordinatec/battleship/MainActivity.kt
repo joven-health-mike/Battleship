@@ -19,10 +19,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
+import com.lordinatec.battleship.gameplay.ai.AdvancedGameAi
+import com.lordinatec.battleship.gameplay.ai.GameAi
 import com.lordinatec.battleship.gameplay.events.EventProvider
 import com.lordinatec.battleship.gameplay.events.GameEvent
 import com.lordinatec.battleship.gameplay.model.Configuration
-import com.lordinatec.battleship.gameplay.model.GameAi
 import com.lordinatec.battleship.gameplay.viewmodel.AlreadyShotException
 import com.lordinatec.battleship.gameplay.viewmodel.GameViewModel
 import com.lordinatec.battleship.gameplay.viewmodel.WrongTurnException
@@ -88,8 +89,12 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         }
+                        val gameAi = gameAiFactory.create(viewModel, gameEventProvider)
                         lifecycleScope.launch {
-                            val gameAi = gameAiFactory.create(viewModel)
+                            (gameAi as AdvancedGameAi).consume()
+                        }
+
+                        lifecycleScope.launch {
                             viewModel.turnState().collect {
                                 if (!it.isGameOver && !it.isMyTurn) {
                                     delay(500)
