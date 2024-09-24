@@ -8,6 +8,14 @@ import com.lordinatec.battleship.gameplay.model.Configuration
 import com.lordinatec.battleship.gameplay.model.FieldIndex
 import com.lordinatec.battleship.gameplay.model.FieldState
 
+/**
+ * The view for a field.
+ *
+ * @param configuration The configuration for the game.
+ * @param fieldState The state of the field.
+ * @param shouldShowShips Whether to show the ships on the field.
+ * @param onFieldClicked The callback for when a field cell is clicked.
+ */
 @Composable
 fun FieldView(
     configuration: Configuration,
@@ -20,15 +28,9 @@ fun FieldView(
             Column {
                 (0 until configuration.columns).forEach { columnIndex ->
                     val index = columnIndex * configuration.columns + rowIndex
-                    var fieldCellState: FieldCellState = FieldCellState.EMPTY
-                    if (shouldShowShips) {
-                        for (shipLocation in fieldState.shipLocations.values) {
-                            if (shipLocation.contains(index)) {
-                                fieldCellState = FieldCellState.SHIP
-                                break
-                            }
-                        }
-                    }
+                    var fieldCellState = FieldCellState.EMPTY
+                    fieldCellState =
+                        maybeShowShips(shouldShowShips, fieldState, index) ?: fieldCellState
                     when {
                         fieldState.hits.contains(index) -> {
                             fieldCellState = FieldCellState.HIT
@@ -47,6 +49,21 @@ fun FieldView(
             }
         }
     }
+}
+
+private fun maybeShowShips(
+    shouldShowShips: Boolean,
+    fieldState: FieldState,
+    index: Int
+): FieldCellState? {
+    if (shouldShowShips) {
+        for (shipLocation in fieldState.shipLocations.values) {
+            if (shipLocation.contains(index)) {
+                return FieldCellState.SHIP
+            }
+        }
+    }
+    return null
 }
 
 @Preview

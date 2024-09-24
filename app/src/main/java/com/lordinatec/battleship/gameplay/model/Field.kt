@@ -84,8 +84,17 @@ interface Field {
         fun create(configuration: Configuration): Field
     }
 
+    /**
+     * The result of a shot.
+     */
     class ShotResult(
-        val hit: Boolean,
+        /**
+         * The hit result.
+         */
+        val hit: Hit,
+        /**
+         * The sunk ship.
+         */
         val sunk: Ship?
     )
 }

@@ -20,6 +20,13 @@ import com.lordinatec.battleship.gameplay.viewmodel.GameViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 
+/**
+ * The view for the game.
+ *
+ * @param viewModel The ViewModel for the game.
+ * @param clickListener The callback for when a field cell is clicked.
+ * @param enemyClickListener The callback for when an enemy field cell is clicked.
+ */
 @Composable
 fun GameView(
     viewModel: GameViewModel,

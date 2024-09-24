@@ -13,6 +13,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
+/**
+ * Controller for the game.
+ *
+ * @property myField The field of the player.
+ * @property enemyField The field of the enemy.
+ * @property shipPlacerFactory The factory for creating ship placers.
+ * @property gameEventPublisher The publisher for game events.
+ *
+ * @constructor Creates a new game controller.
+ */
 class GameController(
     val myField: Field,
     val enemyField: Field,
@@ -27,30 +37,57 @@ class GameController(
     var shots = HashSet<FieldIndex>()
     var enemyShots = HashSet<FieldIndex>()
 
+    /**
+     * Places all ships at random locations.
+     */
     fun placeShipsAtRandom() {
         if (gameStarted) throw GameAlreadyStartedException()
         shipPlacerFactory.create(myField).placeAllShips()
     }
 
+    /**
+     * Places all enemy ships at random locations.
+     */
     fun placeEnemyShipsAtRandom() {
         if (gameStarted) throw GameAlreadyStartedException()
         shipPlacerFactory.create(enemyField).placeAllShips()
     }
 
+    /**
+     * Places a ship at the specified locations.
+     *
+     * @param ship The ship to place.
+     * @param locations The locations to place the ship.
+     */
     fun placeShip(ship: Ship, locations: Set<FieldIndex>) {
         if (gameStarted) throw GameAlreadyStartedException()
         myField.placeShip(ship, locations)
     }
 
+    /**
+     * Places an enemy ship at the specified locations.
+     *
+     * @param ship The ship to place.
+     * @param locations The locations to place the ship.
+     */
     fun placeEnemyShip(ship: Ship, locations: Set<FieldIndex>) {
         if (gameStarted) throw GameAlreadyStartedException()
         enemyField.placeShip(ship, locations)
     }
 
+    /**
+     * Returns the range of field indices for the player field.
+     */
     fun fieldIndexRange() = myField.fieldIndexRange()
 
+    /**
+     * Returns the range of field indices for the enemy field.
+     */
     fun enemyFieldIndexRange() = enemyField.fieldIndexRange()
 
+    /**
+     * Starts the game.
+     */
     fun startGame() {
         if (gameStarted) throw GameAlreadyStartedException()
         if (myField.fieldState.value.shipLocations.size != Ship.entries.size
@@ -61,6 +98,11 @@ class GameController(
         gameEventPublisher.publish(GameEvent.GameCreated)
     }
 
+    /**
+     * Shoots at the enemy at the specified location.
+     *
+     * @param location The location to shoot at.
+     */
     fun shootAtEnemy(location: FieldIndex) {
         if (!isGameActive()) throw GameNotActiveException()
         if (!turnState.value.isMyTurn) throw WrongTurnException()
@@ -79,6 +121,11 @@ class GameController(
         _turnState.update { it.copy(isMyTurn = false) }
     }
 
+    /**
+     * Shoots at the player at the specified location.
+     *
+     * @param location The location to shoot at.
+     */
     fun enemyShot(location: FieldIndex) {
         if (!isGameActive()) throw GameNotActiveException()
         if (turnState.value.isMyTurn) throw WrongTurnException()
@@ -97,6 +144,11 @@ class GameController(
         _turnState.update { it.copy(isMyTurn = true) }
     }
 
+    /**
+     * Returns whether the game is active.
+     *
+     * @return `true` if the game is active, `false` otherwise.
+     */
     fun isGameActive() = gameStarted && !gameEnded
 
     private fun maybeEndGame() {
@@ -127,6 +179,16 @@ class GameController(
         fun create(): GameController
     }
 
+    /**
+     * Factory for creating GameController objects.
+     *
+     * @property configuration The configuration for the game.
+     * @property fieldFactory The factory for creating fields.
+     * @property shipPlacerFactory The factory for creating ship placers.
+     * @property gameEventPublisher The publisher for game events.
+     *
+     * @constructor Creates a new FactoryImpl.
+     */
     class FactoryImpl @Inject constructor(
         private val configuration: Configuration,
         private val fieldFactory: Field.Factory,

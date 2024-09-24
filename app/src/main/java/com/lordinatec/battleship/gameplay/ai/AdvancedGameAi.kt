@@ -6,6 +6,14 @@ import com.lordinatec.battleship.gameplay.model.FieldIndex
 import com.lordinatec.battleship.gameplay.model.Ship
 import com.lordinatec.battleship.gameplay.viewmodel.GameViewModel
 
+/**
+ * An advanced game AI that uses a more sophisticated strategy to play the game.
+ *
+ * @property viewModel The view model for the game.
+ * @property eventProvider The event provider for the game.
+ *
+ * @constructor Creates a new advanced game AI with the given view model and event provider.
+ */
 class AdvancedGameAi(
     private val viewModel: GameViewModel,
     private val eventProvider: EventProvider
@@ -56,6 +64,7 @@ class AdvancedGameAi(
             bestGuess.add(lastShot - viewModel.configuration.rows)
         }
 
+        // remove any shots that were already taken or out of bounds
         bestGuess.removeAll(shotHistory)
         bestGuess.retainAll(viewModel.enemyFieldIndexRange())
 
@@ -70,10 +79,7 @@ class AdvancedGameAi(
 
     private fun randomFieldIndex(): FieldIndex {
         val range = viewModel.enemyFieldIndexRange()
-        var index = range.random()
-        while (viewModel.enemyShots().contains(index)) {
-            index = range.random()
-        }
+        val index = range.filterNot { viewModel.enemyShots().contains(it) }.random()
         return index
     }
 

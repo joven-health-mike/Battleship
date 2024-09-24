@@ -1,14 +1,29 @@
 package com.lordinatec.battleship.gameplay.model
 
+/**
+ * Places ships randomly on a field.
+ *
+ * @param field The field on which to place the ships.
+ *
+ * @constructor Creates a new random ship placer for the specified field.
+ */
 class RandomShipPlacer(
     private val field: Field
 ) {
 
+    /**
+     * Places all ships on the field.
+     */
     fun placeAllShips() {
         Ship.entries.forEach { placeShip(it) }
     }
 
-    fun placeShip(ship: Ship) {
+    /**
+     * Places a ship on the field.
+     *
+     * @param ship The ship to place.
+     */
+    private fun placeShip(ship: Ship) {
         val columns = field.configuration.columns
         val shipDirection =
             if (Math.random() < 0.5) ShipDirection.HORIZONTAL else ShipDirection.VERTICAL
@@ -28,7 +43,6 @@ class RandomShipPlacer(
             || (shipDirection == ShipDirection.HORIZONTAL && shipStartRow != shipEndRow)
             || (shipDirection == ShipDirection.VERTICAL && shipStartCol != shipEndCol)
         ) {
-            println("Ship $ship does not fit on the field")
             placeShip(ship)
             return
         }
@@ -39,16 +53,24 @@ class RandomShipPlacer(
         }
 
         if (shipIndices.any { field.isOccupied(it) }) {
-            println("Ship $ship overlaps with another ship")
             placeShip(ship)
             return
         }
 
-        println("Placing ship $ship at $shipStartIndex to $shipEndIndex")
         field.placeShip(ship, shipIndices.toSet())
     }
 
+    /**
+     * A factory for creating random ship placers.
+     */
     class Factory {
+        /**
+         * Creates a random ship placer for the specified field.
+         *
+         * @param field The field on which to place the ships.
+         *
+         * @return A random ship placer for the specified field.
+         */
         fun create(field: Field): RandomShipPlacer {
             return RandomShipPlacer(field)
         }

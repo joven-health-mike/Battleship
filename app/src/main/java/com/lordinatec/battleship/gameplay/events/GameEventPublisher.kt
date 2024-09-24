@@ -24,7 +24,6 @@ class GameEventPublisher @Inject constructor(
     private val _events = MutableSharedFlow<Event>()
     override val events = _events.asSharedFlow()
     override val eventFlow = events
-    private var gameOver = false
 
     /**
      * Publishes a GameEvent
@@ -35,11 +34,7 @@ class GameEventPublisher @Inject constructor(
         // Block to ensure events are published in the order received
         runBlocking {
             publisherScope.launch {
-                val gameEvent = event as GameEvent
-                if (gameEvent is GameEvent.GameCreated) {
-                    gameOver = false
-                }
-                publishEvent(gameEvent)
+                publishEvent(event as GameEvent)
             }
         }
     }

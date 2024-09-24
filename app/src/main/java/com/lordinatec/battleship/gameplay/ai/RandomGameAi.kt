@@ -4,6 +4,9 @@ import com.lordinatec.battleship.gameplay.events.EventProvider
 import com.lordinatec.battleship.gameplay.model.FieldIndex
 import com.lordinatec.battleship.gameplay.viewmodel.GameViewModel
 
+/**
+ * A game AI that makes random moves.
+ */
 class RandomGameAi(
     private val viewModel: GameViewModel
 ) : GameAi {

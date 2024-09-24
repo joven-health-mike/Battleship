@@ -14,6 +14,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.lordinatec.battleship.gameplay.model.FieldIndex
 
+/**
+ * The view for a field cell.
+ *
+ * @param index The index of the field cell.
+ * @param fieldCellState The state of the field cell.
+ * @param onFieldClicked The callback for when the field cell is clicked.
+ */
 @Composable
 fun FieldCellView(
     index: FieldIndex,

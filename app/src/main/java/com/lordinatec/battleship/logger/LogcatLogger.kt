@@ -17,6 +17,7 @@ import javax.inject.Inject
 class LogcatLogger @Inject constructor(
     private val eventProvider: EventProvider
 ) {
+    // change this to change the logging level
     private val level = debug
 
     suspend fun consume() {

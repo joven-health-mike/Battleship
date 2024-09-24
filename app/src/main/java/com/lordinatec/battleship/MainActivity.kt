@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -24,6 +25,7 @@ import com.lordinatec.battleship.gameplay.ai.GameAi
 import com.lordinatec.battleship.gameplay.events.EventProvider
 import com.lordinatec.battleship.gameplay.events.GameEvent
 import com.lordinatec.battleship.gameplay.model.Configuration
+import com.lordinatec.battleship.gameplay.model.FieldIndex
 import com.lordinatec.battleship.gameplay.viewmodel.AlreadyShotException
 import com.lordinatec.battleship.gameplay.viewmodel.GameViewModel
 import com.lordinatec.battleship.gameplay.viewmodel.WrongTurnException
@@ -35,6 +37,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * Main activity for the Battleship game.
+ */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
@@ -64,99 +69,14 @@ class MainActivity : ComponentActivity() {
                         .padding(top = 10.dp)
                 ) { innerPadding ->
                     Modifier.padding(innerPadding)
-                    LaunchedEffect(Unit) {
-                        lifecycleScope.launch {
-                            logcatLogger.consume()
-                        }
-                        lifecycleScope.launch {
-                            gameEventProvider.eventFlow.collect { event ->
-                                when (val gameEvent = event as GameEvent) {
-                                    is GameEvent.ShipSunk -> {
-                                        Toast.makeText(
-                                            this@MainActivity,
-                                            "Enemy sunk your ${gameEvent.ship}!",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-
-                                    is GameEvent.EnemyShipSunk -> {
-                                        Toast.makeText(
-                                            this@MainActivity,
-                                            "You sunk the enemy's ${gameEvent.ship}!",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-                                }
-                            }
-                        }
-                        val gameAi = gameAiFactory.create(viewModel, gameEventProvider)
-                        lifecycleScope.launch {
-                            (gameAi as AdvancedGameAi).consume()
-                        }
-
-                        lifecycleScope.launch {
-                            viewModel.turnState().collect {
-                                if (!it.isGameOver && !it.isMyTurn) {
-                                    delay(500)
-                                    gameAi.makeNextMove()
-                                }
-                            }
-
-                        }
-                        viewModel.placeShipsAtRandom()
-                        viewModel.placeEnemyShipsAtRandom()
-                        viewModel.startGame()
-                    }
+                    StartGameEffect(viewModel)
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        GameView(viewModel, clickListener = { index ->
-                            try {
-                                viewModel.makeShot(index)
-                            } catch (e: Exception) {
-                                when (e) {
-                                    is WrongTurnException -> {
-                                        Toast.makeText(
-                                            this@MainActivity,
-                                            "It's not your turn!",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-
-                                    is AlreadyShotException -> {
-                                        Toast.makeText(
-                                            this@MainActivity,
-                                            "You already shot here!",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-
-                                    else -> throw e
-                                }
-                            }
-                        }, enemyClickListener = { index ->
-                            try {
-                                viewModel.makeEnemyShot(index)
-                            } catch (e: Exception) {
-                                when (e) {
-                                    is WrongTurnException -> {
-                                        Toast.makeText(
-                                            this@MainActivity,
-                                            "It's your turn!",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-
-                                    is AlreadyShotException -> {
-                                        Toast.makeText(
-                                            this@MainActivity,
-                                            "Enemy already shot here!",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-
-                                    else -> throw e
-                                }
-                            }
-                        })
+                        GameView(
+                            viewModel,
+                            clickListener = { index -> myClickListener(viewModel, index) },
+                            enemyClickListener = { index ->
+                                enemyClickListener(viewModel, index)
+                            })
                     }
                     val turnState = viewModel.turnState().collectAsState().value
                     if (!turnState.isGameOver && turnState.isMyTurn) {
@@ -192,6 +112,107 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
+        }
+    }
+
+    private fun myClickListener(viewModel: GameViewModel, index: FieldIndex) {
+        try {
+            viewModel.makeShot(index)
+        } catch (e: Exception) {
+            when (e) {
+                is WrongTurnException -> {
+                    Toast.makeText(
+                        this@MainActivity,
+                        "It's not your turn!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                is AlreadyShotException -> {
+                    Toast.makeText(
+                        this@MainActivity,
+                        "You already shot here!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                else -> throw e
+            }
+        }
+    }
+
+    private fun enemyClickListener(viewModel: GameViewModel, index: FieldIndex) {
+        try {
+            viewModel.makeEnemyShot(index)
+        } catch (e: Exception) {
+            when (e) {
+                is WrongTurnException -> {
+                    Toast.makeText(
+                        this@MainActivity,
+                        "It's your turn!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                is AlreadyShotException -> {
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Enemy already shot here!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                else -> throw e
+            }
+        }
+    }
+
+    @Composable
+    fun StartGameEffect(viewModel: GameViewModel) {
+        LaunchedEffect(Unit) {
+            lifecycleScope.launch {
+                logcatLogger.consume()
+            }
+
+            lifecycleScope.launch {
+                gameEventProvider.eventFlow.collect { event ->
+                    when (val gameEvent = event as GameEvent) {
+                        is GameEvent.ShipSunk -> {
+                            Toast.makeText(
+                                this@MainActivity,
+                                "Enemy sunk your ${gameEvent.ship}!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+                        is GameEvent.EnemyShipSunk -> {
+                            Toast.makeText(
+                                this@MainActivity,
+                                "You sunk the enemy's ${gameEvent.ship}!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                }
+            }
+
+            val gameAi = gameAiFactory.create(viewModel, gameEventProvider)
+            lifecycleScope.launch {
+                (gameAi as AdvancedGameAi).consume()
+            }
+
+            lifecycleScope.launch {
+                viewModel.turnState().collect {
+                    if (!it.isGameOver && !it.isMyTurn) {
+                        delay(200)
+                        gameAi.makeNextMove()
+                    }
+                }
+            }
+
+            viewModel.placeShipsAtRandom()
+            viewModel.placeEnemyShipsAtRandom()
+            viewModel.startGame()
         }
     }
 }
