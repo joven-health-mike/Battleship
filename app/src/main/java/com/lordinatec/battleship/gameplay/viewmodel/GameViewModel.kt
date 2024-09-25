@@ -9,6 +9,9 @@ import com.lordinatec.battleship.gameplay.model.Configuration
 import com.lordinatec.battleship.gameplay.model.FieldIndex
 import com.lordinatec.battleship.gameplay.model.Ship
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 /**
@@ -25,34 +28,28 @@ class GameViewModel @Inject constructor(
     private val gameControllerFactory: GameController.Factory
 ) : ViewModel() {
 
+    private val _state = MutableStateFlow(GameViewModelState())
+    val state = _state.asStateFlow()
+
     private var gameController = gameControllerFactory.create()
 
+    init {
+        placeShipsAtRandom()
+        placeEnemyShipsAtRandom()
+        startGame()
+        updateState()
+    }
+
     /* PUBLIC APIS */
-    /**
-     * Get the friendly field state.
-     */
-    fun friendlyFieldState() = gameController.myField.fieldState
-
-    /**
-     * Get the enemy field state.
-     */
-    fun enemyFieldState() = gameController.enemyField.fieldState
-
-    /**
-     * Get the state of the turn.
-     */
-    fun turnState() = gameController.turnState
-
-    /**
-     * Get the shots made by the enemy.
-     */
-    fun enemyShots() = gameController.enemyShots
-
     /**
      * Clear the game state and reset the game.
      */
     fun resetGame() {
         gameController = gameControllerFactory.create()
+        placeShipsAtRandom()
+        placeEnemyShipsAtRandom()
+        startGame()
+        updateState()
     }
 
     /**
@@ -60,6 +57,7 @@ class GameViewModel @Inject constructor(
      */
     fun startGame() {
         gameController.startGame()
+        updateState()
     }
 
     /**
@@ -74,6 +72,7 @@ class GameViewModel @Inject constructor(
      */
     fun placeShipsAtRandom() {
         gameController.placeShipsAtRandom()
+        updateState()
     }
 
     /**
@@ -81,6 +80,7 @@ class GameViewModel @Inject constructor(
      */
     fun placeEnemyShipsAtRandom() {
         gameController.placeEnemyShipsAtRandom()
+        updateState()
     }
 
     /**
@@ -91,6 +91,7 @@ class GameViewModel @Inject constructor(
      */
     fun placeShip(ship: Ship, locations: Set<FieldIndex>) {
         gameController.placeShip(ship, locations)
+        updateState()
     }
 
     /**
@@ -101,6 +102,7 @@ class GameViewModel @Inject constructor(
      */
     fun placeEnemyShip(ship: Ship, locations: Set<FieldIndex>) {
         gameController.placeEnemyShip(ship, locations)
+        updateState()
     }
 
     /**
@@ -120,6 +122,7 @@ class GameViewModel @Inject constructor(
      */
     fun makeShot(index: FieldIndex) {
         gameController.shootAtEnemy(index)
+        updateState()
     }
 
     /**
@@ -129,5 +132,19 @@ class GameViewModel @Inject constructor(
      */
     fun makeEnemyShot(index: FieldIndex) {
         gameController.enemyShot(index)
+        updateState()
+    }
+
+    /* PRIVATE FUNCTIONS */
+    private fun updateState() {
+        _state.update {
+            it.copy(
+                friendlyFieldState = gameController.myField.fieldState.value,
+                enemyFieldState = gameController.enemyField.fieldState.value,
+                turnState = gameController.turnState.value,
+                enemyShots = gameController.enemyShots,
+                shots = gameController.shots
+            )
+        }
     }
 }

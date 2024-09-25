@@ -11,7 +11,7 @@ class RandomGameAi(
     private val viewModel: GameViewModel
 ) : GameAi {
     override fun makeNextMove() {
-        viewModel.turnState().value.apply {
+        viewModel.state.value.turnState.apply {
             if (!isMyTurn) {
                 viewModel.makeEnemyShot(randomFieldIndex())
             }
@@ -21,7 +21,7 @@ class RandomGameAi(
     private fun randomFieldIndex(): FieldIndex {
         val range = viewModel.enemyFieldIndexRange()
         var index = range.random()
-        while (viewModel.enemyShots().contains(index)) {
+        while (viewModel.state.value.enemyShots.contains(index)) {
             index = range.random()
         }
         return index

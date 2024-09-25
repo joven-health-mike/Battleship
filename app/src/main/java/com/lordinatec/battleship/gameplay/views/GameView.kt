@@ -37,7 +37,7 @@ fun GameView(
         Text("Enemy Field")
         FieldView(
             configuration = viewModel.configuration,
-            fieldState = viewModel.enemyFieldState().collectAsState().value,
+            fieldState = viewModel.state.collectAsState().value.enemyFieldState,
             shouldShowShips = false,
             onFieldClicked = clickListener
         )
@@ -45,7 +45,7 @@ fun GameView(
         Text("My Field")
         FieldView(
             configuration = viewModel.configuration,
-            fieldState = viewModel.friendlyFieldState().collectAsState().value,
+            fieldState = viewModel.state.collectAsState().value.friendlyFieldState,
             shouldShowShips = true,
             onFieldClicked = enemyClickListener
         )

@@ -27,6 +27,7 @@ import com.lordinatec.battleship.gameplay.events.GameEvent
 import com.lordinatec.battleship.gameplay.model.Configuration
 import com.lordinatec.battleship.gameplay.model.FieldIndex
 import com.lordinatec.battleship.gameplay.viewmodel.AlreadyShotException
+import com.lordinatec.battleship.gameplay.viewmodel.GameNotActiveException
 import com.lordinatec.battleship.gameplay.viewmodel.GameViewModel
 import com.lordinatec.battleship.gameplay.viewmodel.WrongTurnException
 import com.lordinatec.battleship.gameplay.views.GameView
@@ -78,7 +79,7 @@ class MainActivity : ComponentActivity() {
                                 enemyClickListener(viewModel, index)
                             })
                     }
-                    val turnState = viewModel.turnState().collectAsState().value
+                    val turnState = viewModel.state.collectAsState().value.turnState
                     if (!turnState.isGameOver && turnState.isMyTurn) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
@@ -94,7 +95,7 @@ class MainActivity : ComponentActivity() {
                             Text("Enemy Turn!")
                         }
                     }
-                    if (viewModel.friendlyFieldState().collectAsState().value.sunk.size == 5) {
+                    if (viewModel.state.collectAsState().value.friendlyFieldState.sunk.size == 5) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
@@ -102,7 +103,7 @@ class MainActivity : ComponentActivity() {
                             Text("You lose!")
                         }
                     }
-                    if (viewModel.enemyFieldState().collectAsState().value.sunk.size == 5) {
+                    if (viewModel.state.collectAsState().value.enemyFieldState.sunk.size == 5) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
@@ -136,6 +137,10 @@ class MainActivity : ComponentActivity() {
                     ).show()
                 }
 
+                is GameNotActiveException -> {
+                    viewModel.resetGame()
+                }
+
                 else -> throw e
             }
         }
@@ -160,6 +165,10 @@ class MainActivity : ComponentActivity() {
                         "Enemy already shot here!",
                         Toast.LENGTH_SHORT
                     ).show()
+                }
+
+                is GameNotActiveException -> {
+                    viewModel.resetGame()
                 }
 
                 else -> throw e
@@ -202,17 +211,13 @@ class MainActivity : ComponentActivity() {
             }
 
             lifecycleScope.launch {
-                viewModel.turnState().collect {
-                    if (!it.isGameOver && !it.isMyTurn) {
+                viewModel.state.collect {
+                    if (!it.turnState.isGameOver && !it.turnState.isMyTurn) {
                         delay(200)
                         gameAi.makeNextMove()
                     }
                 }
             }
-
-            viewModel.placeShipsAtRandom()
-            viewModel.placeEnemyShipsAtRandom()
-            viewModel.startGame()
         }
     }
 }

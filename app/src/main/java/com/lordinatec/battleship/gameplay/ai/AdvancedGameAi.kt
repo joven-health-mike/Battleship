@@ -47,7 +47,7 @@ class AdvancedGameAi(
 
     override fun makeNextMove() {
         cleanBestGuess()
-        viewModel.turnState().value.apply {
+        viewModel.state.value.turnState.apply {
             if (!isMyTurn) {
                 viewModel.makeEnemyShot(bestGuess[0])
                 shotHistory.add(bestGuess[0])
@@ -77,7 +77,7 @@ class AdvancedGameAi(
 
     private fun randomFieldIndex(): FieldIndex {
         val range = viewModel.enemyFieldIndexRange()
-        val index = range.filterNot { viewModel.enemyShots().contains(it) }.random()
+        val index = range.filterNot { viewModel.state.value.enemyShots.contains(it) }.random()
         return index
     }
 
