@@ -27,21 +27,14 @@ class AdvancedGameAi(
     suspend fun consume() {
         eventProvider.eventFlow.collect { event ->
             when (val gameEvent = event as GameEvent) {
-                is GameEvent.EnemyShotHit -> {
-                    shotResults[gameEvent.index] = true
-                    analyzeField()
-                }
-
-                is GameEvent.EnemyShotMissed -> {
-                    shotResults[gameEvent.index] = false
-                    analyzeField()
-                }
-
+                is GameEvent.EnemyShotHit -> shotResults[gameEvent.index] = true
+                is GameEvent.EnemyShotMissed -> shotResults[gameEvent.index] = false
                 is GameEvent.ShipSunk -> {
                     sunkShips.add(gameEvent.ship)
                     bestGuess.clear()
                 }
             }
+            analyzeField()
         }
     }
 
@@ -49,19 +42,55 @@ class AdvancedGameAi(
         cleanBestGuess()
         viewModel.state.value.turnState.apply {
             if (!isMyTurn) {
-                viewModel.makeEnemyShot(bestGuess[0])
-                shotHistory.add(bestGuess[0])
+                val guess = bestGuess.random()
+                viewModel.makeEnemyShot(guess)
+                shotHistory.add(guess)
             }
         }
     }
 
     private fun analyzeField() {
-        val lastShot = shotHistory.last()
-        if (shotResults[lastShot] == true) {
-            bestGuess.add(lastShot + 1)
-            bestGuess.add(lastShot - 1)
-            bestGuess.add(lastShot + viewModel.configuration.rows)
-            bestGuess.add(lastShot - viewModel.configuration.rows)
+        // if we get 2 hits in a row, add the next field in the same direction
+        shotResults.keys.filter { shotResults[it] == true }.forEach { index ->
+            var foundDouble = false
+            if (shotResults[index + 1] == true) {
+                if (shotResults[index + 2] == true) {
+                    bestGuess.add(index + 3)
+                } else {
+                    bestGuess.add(index + 2)
+                }
+                foundDouble = true
+            }
+            if (shotResults[index - 1] == true) {
+                if (shotResults[index - 2] == true) {
+                    bestGuess.add(index - 3)
+                } else {
+                    bestGuess.add(index - 2)
+                }
+                foundDouble = true
+            }
+            if (shotResults[index + viewModel.configuration.rows] == true) {
+                if (shotResults[index + viewModel.configuration.rows * 2] == true) {
+                    bestGuess.add(index + viewModel.configuration.rows * 3)
+                } else {
+                    bestGuess.add(index + viewModel.configuration.rows * 2)
+                }
+                foundDouble = true
+            }
+            if (shotResults[index - viewModel.configuration.rows] == true) {
+                if (shotResults[index - viewModel.configuration.rows * 2] == true) {
+                    bestGuess.add(index - viewModel.configuration.rows * 3)
+                } else {
+                    bestGuess.add(index - viewModel.configuration.rows * 2)
+                }
+                foundDouble = true
+            }
+            if (!foundDouble) {
+                bestGuess.add(index + 1)
+                bestGuess.add(index - 1)
+                bestGuess.add(index + viewModel.configuration.rows)
+                bestGuess.add(index - viewModel.configuration.rows)
+            }
         }
     }
 

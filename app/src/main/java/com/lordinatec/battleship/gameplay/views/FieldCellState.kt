@@ -12,7 +12,7 @@ enum class FieldCellState(val primaryColor: Color, val secondaryColor: Color) {
     /**
      * The cell is empty.
      */
-    EMPTY(Color.Gray, Color.Blue),
+    EMPTY(Color.Blue, Color.Blue),
 
     /**
      * The cell contains a ship.
