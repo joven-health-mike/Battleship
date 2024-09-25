@@ -40,13 +40,13 @@ class AdvancedGameAi(
                 is GameEvent.ShipSunk -> {
                     sunkShips.add(gameEvent.ship)
                     bestGuess.clear()
-                    ensureBestGuessIsNotEmpty()
                 }
             }
         }
     }
 
     override fun makeNextMove() {
+        cleanBestGuess()
         viewModel.turnState().value.apply {
             if (!isMyTurn) {
                 viewModel.makeEnemyShot(bestGuess[0])
@@ -63,15 +63,13 @@ class AdvancedGameAi(
             bestGuess.add(lastShot + viewModel.configuration.rows)
             bestGuess.add(lastShot - viewModel.configuration.rows)
         }
+    }
 
+    private fun cleanBestGuess() {
         // remove any shots that were already taken or out of bounds
         bestGuess.removeAll(shotHistory)
         bestGuess.retainAll(viewModel.enemyFieldIndexRange())
 
-        ensureBestGuessIsNotEmpty()
-    }
-
-    private fun ensureBestGuessIsNotEmpty() {
         if (bestGuess.isEmpty()) {
             bestGuess.add(randomFieldIndex())
         }

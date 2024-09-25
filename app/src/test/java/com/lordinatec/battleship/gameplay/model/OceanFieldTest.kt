@@ -1,8 +1,5 @@
-package com.lordinatec.battleship.gameplay
+package com.lordinatec.battleship.gameplay.model
 
-import com.lordinatec.battleship.gameplay.model.Configuration
-import com.lordinatec.battleship.gameplay.model.OceanField
-import com.lordinatec.battleship.gameplay.model.Ship
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertThrows
 import kotlin.test.BeforeTest
@@ -46,7 +43,7 @@ class OceanFieldTest {
 
     @Test
     fun placeShipsTest() = runTest {
-        oceanField.reset(configuration)
+        oceanField = OceanField(configuration)
         oceanField.placeShip(Ship.CARRIER, (0..4).toSet())
         assertEquals(1, oceanField.fieldState.value.shipLocations.size)
 
@@ -86,8 +83,8 @@ class OceanFieldTest {
     @Test
     fun shootHitTest() = runTest {
         val index = 0
-        val hit = oceanField.shoot(index)
-        assertTrue(hit)
+        val result = oceanField.shoot(index)
+        assertTrue(result.hit)
         assertTrue(oceanField.fieldState.value.hits.contains(index))
         assertFalse(oceanField.fieldState.value.misses.contains(index))
     }
@@ -95,8 +92,8 @@ class OceanFieldTest {
     @Test
     fun shootMissTest() = runTest {
         val index = configuration.columns - 1
-        val hit = oceanField.shoot(index)
-        assertFalse(hit)
+        val result = oceanField.shoot(index)
+        assertFalse(result.hit)
         assertFalse(oceanField.fieldState.value.hits.contains(index))
         assertTrue(oceanField.fieldState.value.misses.contains(index))
     }
